@@ -1,0 +1,1 @@
+sed -i 's/    debugImplementation(libs.androidx.ui.tooling)/    debugImplementation(libs.androidx.ui.tooling)\n    implementation("androidx.security:security-crypto:1.1.0-alpha06")/g' app/build.gradle.kts
