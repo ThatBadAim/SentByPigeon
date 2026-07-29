@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,14 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hybrid.messaging.feature.chat.ChatViewModel
 import com.hybrid.messaging.feature.chat.ui.ChatScreen
 import com.hybrid.messaging.feature.main.MainUiState
 import com.hybrid.messaging.feature.main.MainViewModel
 import com.hybrid.messaging.feature.main.NavigationTab
-import com.hybrid.messaging.feature.search.ui.SearchScreen
 import com.hybrid.messaging.feature.spaces.SpaceViewModel
 import com.hybrid.messaging.feature.spaces.ui.SpaceNavigationDrawer
 
@@ -69,15 +66,6 @@ fun MainScaffold(
                         }
                     )
                 }
-                NavigationTab.SEARCH -> {
-                    SearchScreen(
-                        onNavigateBack = { mainViewModel.selectTab(NavigationTab.CHATS) },
-                        onMessageClick = { roomId, messageId ->
-                            chatViewModel.loadRoom(roomId, messageId)
-                            mainViewModel.openChatRoom(roomId, messageId)
-                        }
-                    )
-                }
                 NavigationTab.CALLS -> {
                     CallsTabScreen()
                 }
@@ -113,16 +101,6 @@ fun HybridBottomNavigationBar(
             onClick = { onTabSelected(NavigationTab.SPACES) },
             icon = { Icon(Icons.Default.GridView, contentDescription = "Spaces") },
             label = { Text("Spaces") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.primary
-            )
-        )
-
-        NavigationBarItem(
-            selected = currentTab == NavigationTab.SEARCH,
-            onClick = { onTabSelected(NavigationTab.SEARCH) },
-            icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-            label = { Text("Search") },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary
             )

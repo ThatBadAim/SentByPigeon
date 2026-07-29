@@ -10,6 +10,9 @@ import com.hybrid.messaging.core.database.entity.ChatRoomEntity
 import com.hybrid.messaging.core.database.entity.MessageEntity
 import com.hybrid.messaging.core.database.entity.ReactionEntity
 import com.hybrid.messaging.core.database.entity.ServerEntity
+import com.hybrid.messaging.core.database.entity.ServerMemberEntity
+import com.hybrid.messaging.core.database.entity.RoleEntity
+import com.hybrid.messaging.core.database.entity.ChannelPermissionOverrideEntity
 import com.hybrid.messaging.core.database.entity.UserEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -80,14 +83,6 @@ interface MessageDao {
 
     @Query("DELETE FROM messages WHERE id = :messageId")
     suspend fun deleteMessage(messageId: String)
-
-    @Query("""
-        SELECT messages.* FROM messages
-        JOIN messages_fts ON messages.id = messages_fts.rowid
-        WHERE messages_fts MATCH :query
-        ORDER BY messages.timestamp DESC
-    """)
-    suspend fun searchMessages(query: String): List<MessageEntity>
 }
 
 @Dao
@@ -100,4 +95,22 @@ interface ReactionDao {
 
     @Query("DELETE FROM reactions WHERE messageId = :messageId AND emoji = :emoji AND userId = :userId")
     suspend fun removeReaction(messageId: String, emoji: String, userId: String)
+}
+
+@Dao
+interface RoleDao {
+    @Query("SELECT * FROM roles WHERE serverId = :serverId")
+    fun getRolesForServer(serverId: String): Flow<List<RoleEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRole(role: RoleEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertServerMember(member: ServerMemberEntity)
+
+    @Query("SELECT * FROM server_members WHERE serverId = :serverId AND userId = :userId")
+    fun getServerMember(serverId: String, userId: String): Flow<ServerMemberEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertChannelPermissionOverride(override: ChannelPermissionOverrideEntity)
 }

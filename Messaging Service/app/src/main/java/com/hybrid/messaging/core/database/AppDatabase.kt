@@ -8,13 +8,16 @@ import com.hybrid.messaging.core.database.dao.MessageDao
 import com.hybrid.messaging.core.database.dao.ReactionDao
 import com.hybrid.messaging.core.database.dao.ServerDao
 import com.hybrid.messaging.core.database.dao.UserDao
+import com.hybrid.messaging.core.database.dao.RoleDao
 import com.hybrid.messaging.core.database.entity.ChannelCategoryEntity
 import com.hybrid.messaging.core.database.entity.ChatRoomEntity
 import com.hybrid.messaging.core.database.entity.MessageEntity
-import com.hybrid.messaging.core.database.entity.MessageFtsEntity
 import com.hybrid.messaging.core.database.entity.ReactionEntity
 import com.hybrid.messaging.core.database.entity.ServerEntity
 import com.hybrid.messaging.core.database.entity.UserEntity
+import com.hybrid.messaging.core.database.entity.RoleEntity
+import com.hybrid.messaging.core.database.entity.ServerMemberEntity
+import com.hybrid.messaging.core.database.entity.ChannelPermissionOverrideEntity
 
 @Database(
     entities = [
@@ -23,8 +26,10 @@ import com.hybrid.messaging.core.database.entity.UserEntity
         ChannelCategoryEntity::class,
         ChatRoomEntity::class,
         MessageEntity::class,
-        MessageFtsEntity::class,
-        ReactionEntity::class
+        ReactionEntity::class,
+        RoleEntity::class,
+        ServerMemberEntity::class,
+        ChannelPermissionOverrideEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -36,6 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun serverDao(): ServerDao
     abstract fun messageDao(): MessageDao
     abstract fun reactionDao(): ReactionDao
+    abstract fun roleDao(): RoleDao
 
     companion object {
         const val DATABASE_NAME = "nexus_hybrid_messaging.db"

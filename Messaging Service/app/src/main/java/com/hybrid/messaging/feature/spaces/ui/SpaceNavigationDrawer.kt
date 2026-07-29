@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CallEnd
+import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Headset
@@ -373,7 +374,11 @@ fun ChannelListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = if (channel.type == ChatRoomType.SPACE_VOICE_ROOM) Icons.Default.VolumeUp else Icons.Default.Tag,
+                imageVector = when (channel.type) {
+                    ChatRoomType.SPACE_VOICE_ROOM -> Icons.Default.VolumeUp
+                    ChatRoomType.SPACE_ANNOUNCEMENT_CHANNEL -> Icons.Default.ChatBubble
+                    else -> Icons.Default.Tag
+                },
                 contentDescription = null,
                 tint = contentColor,
                 modifier = Modifier.size(18.dp)

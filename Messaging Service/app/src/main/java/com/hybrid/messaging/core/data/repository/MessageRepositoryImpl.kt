@@ -208,32 +208,4 @@ class MessageRepositoryImpl @Inject constructor(
     override suspend fun markRoomAsRead(roomId: String): Resource<Unit> {
         return Resource.Success(Unit)
     }
-
-    override suspend fun searchMessages(query: String): Resource<List<Message>> {
-        return try {
-            val ftsQuery = "$query*"
-            val entities = messageDao.searchMessages(ftsQuery)
-            val domainMessages = entities.map { entity ->
-                Message(
-                    id = entity.id,
-                    roomId = entity.roomId,
-                    senderId = entity.senderId,
-                    senderName = entity.senderName,
-                    senderAvatarUrl = entity.senderAvatarUrl,
-                    content = entity.content,
-                    messageType = entity.messageType,
-                    mediaUrl = entity.mediaUrl,
-                    audioDurationMs = entity.audioDurationMs,
-                    timestamp = entity.timestamp,
-                    encryptionStatus = entity.encryptionStatus,
-                    reactions = emptyList(),
-                    readReceipts = emptyList(),
-                    replyToMessageId = entity.replyToMessageId
-                )
-            }
-            Resource.Success(domainMessages)
-        } catch (e: Exception) {
-            Resource.Error(e.message ?: "Failed to search messages")
-        }
-    }
 }

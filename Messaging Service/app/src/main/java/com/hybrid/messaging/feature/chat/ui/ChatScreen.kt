@@ -94,14 +94,9 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-    // Scroll to bottom on new messages or specific message
-    LaunchedEffect(uiState.messages.size, uiState.focusedMessageId) {
-        if (uiState.focusedMessageId != null) {
-            val index = uiState.messages.indexOfFirst { it.id == uiState.focusedMessageId }
-            if (index != -1) {
-                listState.animateScrollToItem(index)
-            }
-        } else if (uiState.messages.isNotEmpty()) {
+    // Scroll to bottom on new messages
+    LaunchedEffect(uiState.messages.size) {
+        if (uiState.messages.isNotEmpty()) {
             listState.animateScrollToItem(uiState.messages.size - 1)
         }
     }
@@ -169,7 +164,6 @@ fun ChatScreen(
                             isUserMe = message.senderId == "user_me",
                             isPlayingVoice = uiState.playingVoiceMessageId == message.id && uiState.isPlayingVoice,
                             voicePlaybackProgress = if (uiState.playingVoiceMessageId == message.id) uiState.voicePlaybackProgress else 0f,
-                            isFocused = uiState.focusedMessageId == message.id,
                             onLongClick = {
                                 viewModel.onEvent(ChatUiEvent.SelectMessageForReaction(message))
                             },
@@ -290,11 +284,10 @@ fun MessageBubble(
     isUserMe: Boolean,
     isPlayingVoice: Boolean,
     voicePlaybackProgress: Float,
-    isFocused: Boolean = false,
     onLongClick: () -> Unit,
     onToggleVoice: () -> Unit
 ) {
-    val bubbleColor = if (isFocused) Color.Yellow.copy(alpha = 0.3f) else if (isUserMe) BubbleOutgoing else BubbleIncoming
+    val bubbleColor = if (isUserMe) BubbleOutgoing else BubbleIncoming
     val alignment = if (isUserMe) Alignment.CenterEnd else Alignment.CenterStart
     val shape = if (isUserMe) {
         RoundedCornerShape(18.dp, 18.dp, 4.dp, 18.dp)

@@ -25,7 +25,6 @@ interface MessageRepository {
     suspend fun addReaction(messageId: String, emoji: String): Resource<Unit>
     suspend fun removeReaction(messageId: String, emoji: String): Resource<Unit>
     suspend fun markRoomAsRead(roomId: String): Resource<Unit>
-    suspend fun searchMessages(query: String): Resource<List<Message>>
 }
 
 interface ChatRoomRepository {

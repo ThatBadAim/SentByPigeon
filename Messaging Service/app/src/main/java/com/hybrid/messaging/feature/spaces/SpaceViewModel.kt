@@ -34,6 +34,7 @@ sealed class SpaceUiEvent {
     data object ToggleMic : SpaceUiEvent()
     data object ToggleDeafen : SpaceUiEvent()
     data class CreateServer(val name: String) : SpaceUiEvent()
+    data class JoinServer(val inviteCode: String) : SpaceUiEvent()
 }
 
 @HiltViewModel
@@ -112,6 +113,14 @@ class SpaceViewModel @Inject constructor(
                     serverRepository.createServer(event.name, null)
                 }
             }
+            is SpaceUiEvent.JoinServer -> {
+                viewModelScope.launch {
+                    // Placeholder for actual join API logic using the invite code
+                    // For now, mock selecting a new server based on the invite code
+                    _uiState.update { it.copy(selectedServerId = "srv_${event.inviteCode}") }
+                    observeServerDetails("srv_${event.inviteCode}")
+                }
+            }
         }
     }
 
@@ -131,7 +140,7 @@ class SpaceViewModel @Inject constructor(
             position = 0,
             channels = listOf(
                 ChatRoom("ch_welcome", ChatRoomType.SPACE_TEXT_CHANNEL, "welcome-rules", serverId = serverId, categoryId = "cat_1"),
-                ChatRoom("ch_announcements", ChatRoomType.SPACE_TEXT_CHANNEL, "announcements", serverId = serverId, categoryId = "cat_1")
+                ChatRoom("ch_announcements", ChatRoomType.SPACE_ANNOUNCEMENT_CHANNEL, "announcements", serverId = serverId, categoryId = "cat_1")
             )
         )
 

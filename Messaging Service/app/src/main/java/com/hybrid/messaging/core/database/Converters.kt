@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import com.hybrid.messaging.core.model.ChatRoomType
 import com.hybrid.messaging.core.model.EncryptionStatus
 import com.hybrid.messaging.core.model.MessageType
+import com.hybrid.messaging.core.model.RolePermission
 import com.hybrid.messaging.core.model.UserStatus
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -40,4 +41,10 @@ class Converters {
 
     @TypeConverter
     fun toListString(value: String): List<String> = runCatching { json.decodeFromString<List<String>>(value) }.getOrDefault(emptyList())
+
+    @TypeConverter
+    fun fromRolePermissionSet(permissions: Set<RolePermission>): String = json.encodeToString(permissions)
+
+    @TypeConverter
+    fun toRolePermissionSet(value: String): Set<RolePermission> = runCatching { json.decodeFromString<Set<RolePermission>>(value) }.getOrDefault(emptySet())
 }

@@ -10,15 +10,13 @@ import javax.inject.Inject
 enum class NavigationTab {
     CHATS,
     SPACES,
-    SEARCH,
     CALLS,
     SETTINGS
 }
 
 data class MainUiState(
     val currentTab: NavigationTab = NavigationTab.SPACES,
-    val activeChatRoomId: String? = null,
-    val focusedMessageId: String? = null
+    val activeChatRoomId: String? = null
 )
 
 @HiltViewModel
@@ -31,11 +29,10 @@ class MainViewModel @Inject constructor() : ViewModel() {
         _uiState.value = _uiState.value.copy(currentTab = tab)
     }
 
-    fun openChatRoom(roomId: String, messageId: String? = null) {
+    fun openChatRoom(roomId: String) {
         _uiState.value = _uiState.value.copy(
             currentTab = NavigationTab.CHATS,
-            activeChatRoomId = roomId,
-            focusedMessageId = messageId
+            activeChatRoomId = roomId
         )
     }
 }

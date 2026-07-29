@@ -31,8 +31,7 @@ data class ChatUiState(
     val isPlayingVoice: Boolean = false,
     val voicePlaybackProgress: Float = 0f,
     val unreadMessagesBelow: Int = 0,
-    val inputQuery: String = "",
-    val focusedMessageId: String? = null
+    val inputQuery: String = ""
 )
 
 sealed class ChatUiEvent {
@@ -63,9 +62,8 @@ class ChatViewModel @Inject constructor(
         loadRoom("general_channel")
     }
 
-    fun loadRoom(roomId: String, focusedMessageId: String? = null) {
+    fun loadRoom(roomId: String) {
         currentRoomId = roomId
-        _uiState.update { it.copy(focusedMessageId = focusedMessageId) }
         viewModelScope.launch {
             chatRoomRepository.getChatRoom(roomId).collectLatest { room ->
                 _uiState.update { it.copy(room = room) }

@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 import com.hybrid.messaging.core.model.ChatRoomType
 import com.hybrid.messaging.core.model.EncryptionStatus
 import com.hybrid.messaging.core.model.MessageType
+import com.hybrid.messaging.core.model.RolePermission
 import com.hybrid.messaging.core.model.UserStatus
 
 @Entity(tableName = "users")
@@ -111,4 +112,75 @@ data class ReactionEntity(
     val emoji: String,
     val userId: String,
     val timestamp: Long = System.currentTimeMillis()
+)
+
+@Entity(
+    tableName = "roles",
+    foreignKeys = [
+        ForeignKey(
+            entity = ServerEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["serverId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("serverId")]
+)
+data class RoleEntity(
+    @PrimaryKey val id: String,
+    val serverId: String,
+    val name: String,
+    val colorHex: String,
+    val permissions: Set<RolePermission>
+)
+
+@Entity(
+    tableName = "server_members",
+    primaryKeys = ["serverId", "userId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = ServerEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["serverId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = UserEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["userId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("serverId"), Index("userId")]
+)
+data class ServerMemberEntity(
+    val serverId: String,
+    val userId: String,
+    val roleIds: List<String>
+)
+
+@Entity(
+    tableName = "channel_permission_overrides",
+    primaryKeys = ["channelId", "roleId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = ChatRoomEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["channelId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = RoleEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["roleId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("channelId"), Index("roleId")]
+)
+data class ChannelPermissionOverrideEntity(
+    val channelId: String,
+    val roleId: String,
+    val allowedPermissions: Set<RolePermission>,
+    val deniedPermissions: Set<RolePermission>
 )
