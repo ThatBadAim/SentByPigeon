@@ -26,6 +26,9 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUsers(users: List<UserEntity>)
+
+    @Query("UPDATE users SET status = :status WHERE id = :userId")
+    suspend fun updateUserStatus(userId: String, status: com.hybrid.messaging.core.model.UserStatus)
 }
 
 @Dao
@@ -44,6 +47,9 @@ interface ChatRoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChatRooms(chatRooms: List<ChatRoomEntity>)
+
+    @Query("DELETE FROM chat_rooms WHERE id = :roomId")
+    suspend fun deleteChatRoom(roomId: String)
 }
 
 @Dao
@@ -62,6 +68,9 @@ interface ServerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategories(categories: List<ChannelCategoryEntity>)
+
+    @Query("DELETE FROM servers WHERE id = :serverId")
+    suspend fun deleteServer(serverId: String)
 }
 
 @Dao
@@ -80,6 +89,9 @@ interface MessageDao {
 
     @Query("DELETE FROM messages WHERE id = :messageId")
     suspend fun deleteMessage(messageId: String)
+
+    @Query("SELECT * FROM messages WHERE encryptionStatus = 'PENDING' ORDER BY timestamp ASC")
+    fun getPendingMessages(): Flow<List<MessageEntity>>
 }
 
 @Dao

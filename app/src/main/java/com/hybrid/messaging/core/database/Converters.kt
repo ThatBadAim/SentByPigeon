@@ -12,32 +12,32 @@ class Converters {
     private val json = Json { ignoreUnknownKeys = true }
 
     @TypeConverter
-    fromUserStatus(status: UserStatus): String = status.name
+    fun fromUserStatus(status: UserStatus): String = status.name
 
     @TypeConverter
-    toUserStatus(value: String): UserStatus = runCatching { UserStatus.valueOf(value) }.getOrDefault(UserStatus.OFFLINE)
+    fun toUserStatus(value: String): UserStatus = runCatching { UserStatus.valueOf(value) }.getOrDefault(UserStatus.OFFLINE)
 
     @TypeConverter
-    fromChatRoomType(type: ChatRoomType): String = type.name
+    fun fromChatRoomType(type: ChatRoomType): String = type.name
 
     @TypeConverter
-    toChatRoomType(value: String): ChatRoomType = runCatching { ChatRoomType.valueOf(value) }.getOrDefault(ChatRoomType.DIRECT_MESSAGE)
+    fun toChatRoomType(value: String): ChatRoomType = runCatching { ChatRoomType.valueOf(value) }.getOrDefault(ChatRoomType.DIRECT_MESSAGE)
 
     @TypeConverter
-    fromMessageType(type: MessageType): String = type.name
+    fun fromMessageType(type: MessageType): String = type.name
 
     @TypeConverter
-    toMessageType(value: String): MessageType = runCatching { MessageType.valueOf(value) }.getOrDefault(MessageType.TEXT)
+    fun toMessageType(value: String): MessageType = runCatching { MessageType.valueOf(value) }.getOrDefault(MessageType.TEXT)
 
     @TypeConverter
-    fromEncryptionStatus(status: EncryptionStatus): String = status.name
+    fun fromEncryptionStatus(status: EncryptionStatus): String = status.name
 
     @TypeConverter
-    toEncryptionStatus(value: String): EncryptionStatus = runCatching { EncryptionStatus.valueOf(value) }.getOrDefault(EncryptionStatus.ENCRYPTED_SIGNAL_V3)
+    fun toEncryptionStatus(value: String): EncryptionStatus = runCatching { EncryptionStatus.valueOf(value) }.getOrDefault(EncryptionStatus.ENCRYPTED_SIGNAL_V3)
 
     @TypeConverter
-    fromListString(list: List<String>): String = json.encodeToString(list)
+    fun fromListString(list: List<String>): String = json.encodeToString(list)
 
     @TypeConverter
-    toListString(value: String): List<String> = runCatching { json.decodeFromString<List<String>>(value) }.getOrDefault(emptyList())
+    fun toListString(value: String): List<String> = runCatching { json.decodeFromString<List<String>>(value) }.getOrDefault(emptyList())
 }

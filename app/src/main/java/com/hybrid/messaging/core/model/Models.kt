@@ -1,13 +1,10 @@
 package com.hybrid.messaging.core.model
 
-import androidx.compose.runtime.Immutable
-
 import java.util.Date
 
 /**
  * Domain representation of a User in the system.
  */
-@Immutable
 data class User(
     val id: String,
     val phoneNumber: String,
@@ -28,7 +25,6 @@ enum class UserStatus {
  * ChatRoom represents both WhatsApp/iMessage direct/group chats
  * as well as Discord-style Space Text & Voice Channels.
  */
-@Immutable
 data class ChatRoom(
     val id: String,
     val type: ChatRoomType,
@@ -93,7 +89,6 @@ enum class RolePermission {
 /**
  * Represents a single message payload in a room or channel.
  */
-@Immutable
 data class Message(
     val id: String,
     val roomId: String,
@@ -122,7 +117,6 @@ enum class EncryptionStatus {
 /**
  * Reaction overlay model for iMessage/Discord style emoji reactions.
  */
-@Immutable
 data class Reaction(
     val emoji: String,
     val count: Int,

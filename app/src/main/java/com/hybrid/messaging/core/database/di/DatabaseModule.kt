@@ -25,7 +25,7 @@ object DatabaseModule {
     @Singleton
     fun provideSupportFactory(): SupportFactory {
         // Secure random generated passphrase or hardware-backed keystore key in production
-        val passphrase = SQLiteDatabase.getBytes("NEXUS_SECURE_E2EE_SQLCIPHER_KEY_2026".toCharArray())
+        val passphrase = SQLiteDatabase.getBytes(System.getenv("SQLCIPHER_PASSPHRASE")?.toCharArray() ?: "NEXUS_SECURE_E2EE_SQLCIPHER_KEY_2026".toCharArray())
         return SupportFactory(passphrase)
     }
 
