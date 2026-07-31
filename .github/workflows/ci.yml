@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Messaging Service # Replace with your subfolder name if different
+        working-directory: ./
 
     steps:
       - name: Checkout Code
@@ -44,7 +44,7 @@ jobs:
           target: default
           arch: x86_64
           profile: pixel_6
-          working-directory: Messaging Service
+          working-directory: ./
           script: |
             chmod +x gradlew
             ./gradlew connectedCheck --stacktrace
