@@ -92,6 +92,12 @@ interface MessageDao {
 
     @Query("SELECT * FROM messages WHERE encryptionStatus = 'PENDING' ORDER BY timestamp ASC")
     fun getPendingMessages(): Flow<List<MessageEntity>>
+
+    @Query("SELECT * FROM messages WHERE syncState = :syncState ORDER BY timestamp ASC")
+    fun getMessagesBySyncState(syncState: com.hybrid.messaging.core.model.SyncState): Flow<List<MessageEntity>>
+
+    @Query("UPDATE messages SET syncState = :syncState WHERE id = :messageId")
+    suspend fun updateMessageSyncState(messageId: String, syncState: com.hybrid.messaging.core.model.SyncState)
 }
 
 @Dao

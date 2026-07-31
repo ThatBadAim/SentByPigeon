@@ -24,8 +24,11 @@ import com.hybrid.messaging.core.database.entity.UserEntity
         MessageEntity::class,
         ReactionEntity::class
     ],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    autoMigrations = [
+        androidx.room.AutoMigration(from = 1, to = 2)
+    ],
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
