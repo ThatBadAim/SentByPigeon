@@ -9,27 +9,29 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
     defaults:
       run:
-        working-directory: Messaging Service # Replace with your subfolder name if different
+        working-directory: . # Replace with your subfolder name if different
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: echo 'No gradlew, using gradle'
 
       - name: Run Unit Tests
-        run: ./gradlew test --stacktrace
+        run: gradle test --stacktrace
 
       - name: Enable KVM
         run: |
@@ -44,7 +46,6 @@ jobs:
           target: default
           arch: x86_64
           profile: pixel_6
-          working-directory: Messaging Service
+          working-directory: .
           script: |
-            chmod +x gradlew
-            ./gradlew connectedCheck --stacktrace
+            gradle connectedCheck --stacktrace
