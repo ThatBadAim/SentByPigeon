@@ -3,6 +3,11 @@ package com.hybrid.messaging.core.data.repository
 import com.hybrid.messaging.core.database.dao.MessageDao
 import com.hybrid.messaging.core.database.dao.ReactionDao
 import com.hybrid.messaging.core.database.entity.MessageEntity
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.hybrid.messaging.core.database.entity.ReactionEntity
 import com.hybrid.messaging.core.domain.repository.MessageRepository
 import com.hybrid.messaging.core.domain.util.Resource
@@ -10,8 +15,10 @@ import com.hybrid.messaging.core.model.EncryptionStatus
 import com.hybrid.messaging.core.model.Message
 import com.hybrid.messaging.core.model.MessageType
 import com.hybrid.messaging.core.model.Reaction
+import com.hybrid.messaging.core.model.SyncState
 import com.hybrid.messaging.core.network.websocket.SocketFrame
 import com.hybrid.messaging.core.network.websocket.WebSocketManager
+import com.hybrid.messaging.core.network.worker.MessageSyncWorker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -21,8 +28,19 @@ import javax.inject.Inject
 class MessageRepositoryImpl @Inject constructor(
     private val messageDao: MessageDao,
     private val reactionDao: ReactionDao,
-    private val webSocketManager: WebSocketManager
+    private val webSocketManager: WebSocketManager,
+    private val workManager: WorkManager
 ) : MessageRepository {
+
+    private fun enqueueSyncJob() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<MessageSyncWorker>()
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueueUniqueWork("MessageSync", ExistingWorkPolicy.APPEND_OR_REPLACE, request)
+    }
 
     override fun getMessagesForRoom(roomId: String): Flow<List<Message>> {
         return messageDao.getMessagesForRoom(roomId).map { entities ->
@@ -68,25 +86,12 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+            syncState = SyncState.PENDING,
             replyToMessageId = replyToId
         )
 
         messageDao.insertMessage(entity)
-
-        runCatching {
-            webSocketManager.sendFrame(
-                SocketFrame.MessagePayload(
-                    id = messageId,
-                    roomId = roomId,
-                    senderId = currentUserId,
-                    senderName = currentUserName,
-                    content = text,
-                    messageType = MessageType.TEXT.name,
-                    timestamp = timestamp,
-                    encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3.name
-                )
-            )
-        }
+        enqueueSyncJob()
 
         val domainMessage = Message(
             id = messageId,
@@ -125,10 +130,12 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = durationMs,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+            syncState = SyncState.PENDING,
             replyToMessageId = null
         )
 
         messageDao.insertMessage(entity)
+        enqueueSyncJob()
 
         return Resource.Success(
             Message(
@@ -168,10 +175,12 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+            syncState = SyncState.PENDING,
             replyToMessageId = null
         )
 
         messageDao.insertMessage(entity)
+        enqueueSyncJob()
 
         return Resource.Success(
             Message(
