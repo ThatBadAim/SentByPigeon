@@ -148,8 +148,8 @@ class AppDatabaseTest {
         )
         chatRoomDao.insertChatRoom(channel)
 
-        val msg1 = MessageEntity("m1", "ch1", "u1", "U", null, "1", MessageType.TEXT, null, null, 1000L, EncryptionStatus.UNENCRYPTED, null)
-        val msg2 = MessageEntity("m2", "ch1", "u1", "U", null, "2", MessageType.TEXT, null, null, 2000L, EncryptionStatus.UNENCRYPTED, null)
+        val msg1 = MessageEntity("m1", "ch1", "u1", "U", null, "1", MessageType.TEXT, null, null, 1000L, EncryptionStatus.UNENCRYPTED, com.hybrid.messaging.core.model.SyncState.PENDING, null)
+        val msg2 = MessageEntity("m2", "ch1", "u1", "U", null, "2", MessageType.TEXT, null, null, 2000L, EncryptionStatus.UNENCRYPTED, com.hybrid.messaging.core.model.SyncState.PENDING, null)
         messageDao.insertMessages(listOf(msg1, msg2))
 
         val messages = messageDao.getMessagesForRoom("ch1").first()

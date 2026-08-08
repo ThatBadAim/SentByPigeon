@@ -36,6 +36,12 @@ class Converters {
     fun toEncryptionStatus(value: String): EncryptionStatus = runCatching { EncryptionStatus.valueOf(value) }.getOrDefault(EncryptionStatus.ENCRYPTED_SIGNAL_V3)
 
     @TypeConverter
+    fun fromSyncState(status: com.hybrid.messaging.core.model.SyncState): String = status.name
+
+    @TypeConverter
+    fun toSyncState(value: String): com.hybrid.messaging.core.model.SyncState = runCatching { com.hybrid.messaging.core.model.SyncState.valueOf(value) }.getOrDefault(com.hybrid.messaging.core.model.SyncState.PENDING)
+
+    @TypeConverter
     fun fromListString(list: List<String>): String = json.encodeToString(list)
 
     @TypeConverter
