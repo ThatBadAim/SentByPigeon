@@ -40,4 +40,10 @@ class Converters {
 
     @TypeConverter
     fun toListString(value: String): List<String> = runCatching { json.decodeFromString<List<String>>(value) }.getOrDefault(emptyList())
+
+    @TypeConverter
+    fun fromSyncState(state: com.hybrid.messaging.core.model.SyncState): String = state.name
+
+    @TypeConverter
+    fun toSyncState(value: String): com.hybrid.messaging.core.model.SyncState = runCatching { com.hybrid.messaging.core.model.SyncState.valueOf(value) }.getOrDefault(com.hybrid.messaging.core.model.SyncState.PENDING)
 }

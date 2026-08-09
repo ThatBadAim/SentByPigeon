@@ -103,7 +103,8 @@ data class Message(
     val encryptionStatus: EncryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
     val reactions: List<Reaction> = emptyList(),
     val readReceipts: List<ReadReceipt> = emptyList(),
-    val replyToMessageId: String? = null
+    val replyToMessageId: String? = null,
+    val syncState: SyncState = SyncState.PENDING
 )
 
 enum class MessageType {
@@ -144,4 +145,8 @@ data class CallSession(
 
 enum class CallState {
     IDLE, DIALING, RINGING, CONNECTED, ENDED
+}
+
+enum class SyncState {
+    PENDING, SENT, DELIVERED, READ, FAILED
 }
