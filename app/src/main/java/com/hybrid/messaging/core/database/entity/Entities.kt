@@ -90,7 +90,9 @@ data class MessageEntity(
     val audioDurationMs: Long?,
     val timestamp: Long,
     val encryptionStatus: EncryptionStatus,
-    val replyToMessageId: String?
+    val replyToMessageId: String?,
+    @androidx.room.ColumnInfo(defaultValue = "PENDING")
+    val syncState: com.hybrid.messaging.core.model.SyncState = com.hybrid.messaging.core.model.SyncState.PENDING
 )
 
 @Entity(

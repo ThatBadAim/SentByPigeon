@@ -90,7 +90,7 @@ interface MessageDao {
     @Query("DELETE FROM messages WHERE id = :messageId")
     suspend fun deleteMessage(messageId: String)
 
-    @Query("SELECT * FROM messages WHERE encryptionStatus = 'PENDING' ORDER BY timestamp ASC")
+    @Query("SELECT * FROM messages WHERE syncState = 'PENDING' ORDER BY timestamp ASC")
     fun getPendingMessages(): Flow<List<MessageEntity>>
 }
 
