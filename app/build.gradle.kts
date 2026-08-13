@@ -64,7 +64,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.biometric)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -80,9 +79,6 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.hilt.work)
-    kapt(libs.androidx.hilt.compiler)
 
     // Room & SQLCipher Encryption
     implementation(libs.room.runtime)

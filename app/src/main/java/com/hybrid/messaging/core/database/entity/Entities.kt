@@ -8,8 +8,6 @@ import com.hybrid.messaging.core.model.ChatRoomType
 import com.hybrid.messaging.core.model.EncryptionStatus
 import com.hybrid.messaging.core.model.MessageType
 import com.hybrid.messaging.core.model.UserStatus
-import com.hybrid.messaging.core.model.SyncState
-import androidx.room.ColumnInfo
 
 @Entity(tableName = "users")
 data class UserEntity(
@@ -92,8 +90,6 @@ data class MessageEntity(
     val audioDurationMs: Long?,
     val timestamp: Long,
     val encryptionStatus: EncryptionStatus,
-    @ColumnInfo(defaultValue = "'PENDING'")
-    val syncState: SyncState = SyncState.PENDING,
     val replyToMessageId: String?
 )
 
