@@ -1,0 +1,13 @@
+import re
+
+with open("app/src/main/java/com/hybrid/messaging/core/data/repository/MessageRepositoryImpl.kt", "r") as f:
+    content = f.read()
+
+# Fix sendVoiceNote parameters
+content = content.replace(
+    '                    messageType = type.name,\n                    mediaUrl = mediaUrl,\n                    timestamp = timestamp,\n                    encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3.name\n                )\n            )\n        }\n\n        if (result.isSuccess) {\n            messageDao.updateMessageSyncState(messageId, SyncState.SENT)\n        } else {\n            messageDao.updateMessageSyncState(messageId, SyncState.FAILED)\n        }\n\n        return Resource.Success(\n            Message(\n                id = messageId,\n                roomId = roomId,\n                senderId = currentUserId,\n                senderName = currentUserName,\n                content = entity.content,\n                messageType = MessageType.VOICE_NOTE,\n                mediaUrl = audioFilePath,\n                audioDurationMs = durationMs,\n                timestamp = timestamp,\n                encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,\n                syncState = if (result.isSuccess) SyncState.SENT else SyncState.FAILED\n            )\n        )',
+    '                    messageType = MessageType.VOICE_NOTE.name,\n                    mediaUrl = audioFilePath,\n                    audioDurationMs = durationMs,\n                    timestamp = timestamp,\n                    encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3.name\n                )\n            )\n        }\n\n        if (result.isSuccess) {\n            messageDao.updateMessageSyncState(messageId, SyncState.SENT)\n        } else {\n            messageDao.updateMessageSyncState(messageId, SyncState.FAILED)\n        }\n\n        return Resource.Success(\n            Message(\n                id = messageId,\n                roomId = roomId,\n                senderId = currentUserId,\n                senderName = currentUserName,\n                content = entity.content,\n                messageType = MessageType.VOICE_NOTE,\n                mediaUrl = audioFilePath,\n                audioDurationMs = durationMs,\n                timestamp = timestamp,\n                encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,\n                syncState = if (result.isSuccess) SyncState.SENT else SyncState.FAILED\n            )\n        )'
+)
+
+with open("app/src/main/java/com/hybrid/messaging/core/data/repository/MessageRepositoryImpl.kt", "w") as f:
+    f.write(content)

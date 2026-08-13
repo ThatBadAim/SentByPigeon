@@ -11,6 +11,7 @@ import com.hybrid.messaging.core.database.entity.MessageEntity
 import com.hybrid.messaging.core.database.entity.ReactionEntity
 import com.hybrid.messaging.core.database.entity.ServerEntity
 import com.hybrid.messaging.core.database.entity.UserEntity
+import com.hybrid.messaging.core.model.SyncState
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -90,8 +91,11 @@ interface MessageDao {
     @Query("DELETE FROM messages WHERE id = :messageId")
     suspend fun deleteMessage(messageId: String)
 
-    @Query("SELECT * FROM messages WHERE encryptionStatus = 'PENDING' ORDER BY timestamp ASC")
+    @Query("SELECT * FROM messages WHERE syncState IN ('PENDING', 'FAILED') ORDER BY timestamp ASC")
     fun getPendingMessages(): Flow<List<MessageEntity>>
+
+    @Query("UPDATE messages SET syncState = :syncState WHERE id = :messageId")
+    suspend fun updateMessageSyncState(messageId: String, syncState: SyncState)
 }
 
 @Dao
