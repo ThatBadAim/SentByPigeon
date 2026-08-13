@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: . # Replace with your subfolder name if different
+        working-directory: "Messaging Service"
 
     steps:
       - name: Checkout Code
@@ -26,7 +26,7 @@ jobs:
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x gradlew || chmod +x ../gradlew
 
       - name: Run Unit Tests
         run: ./gradlew test --stacktrace
@@ -44,7 +44,7 @@ jobs:
           target: default
           arch: x86_64
           profile: pixel_6
-          working-directory: .
+          working-directory: "Messaging Service"
           script: |
             chmod +x gradlew
             ./gradlew connectedCheck --stacktrace
