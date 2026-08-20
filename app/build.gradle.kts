@@ -79,9 +79,6 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
-    implementation(libs.hilt.work)
-    kapt(libs.hilt.compiler.ext)
-    implementation(libs.work.runtime.ktx)
 
     // Room & SQLCipher Encryption
     implementation(libs.room.runtime)
@@ -105,7 +102,6 @@ dependencies {
     implementation(libs.coil.compose)
 
     // Testing
-    implementation("androidx.biometric:biometric:1.1.0")
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)

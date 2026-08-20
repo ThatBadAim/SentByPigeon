@@ -101,7 +101,6 @@ data class Message(
     val audioDurationMs: Long? = null,
     val timestamp: Long = System.currentTimeMillis(),
     val encryptionStatus: EncryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-    val syncState: SyncState = SyncState.PENDING,
     val reactions: List<Reaction> = emptyList(),
     val readReceipts: List<ReadReceipt> = emptyList(),
     val replyToMessageId: String? = null
@@ -113,10 +112,6 @@ enum class MessageType {
 
 enum class EncryptionStatus {
     UNENCRYPTED, PENDING, ENCRYPTED_SIGNAL_V3, VERIFIED
-}
-
-enum class SyncState {
-    PENDING, SENT, DELIVERED, READ, FAILED
 }
 
 /**

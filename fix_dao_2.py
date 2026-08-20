@@ -1,4 +1,11 @@
-package com.hybrid.messaging.core.database.dao
+import sys
+
+filepath = "Messaging Service/app/src/main/java/com/hybrid/messaging/core/database/dao/Daos.kt"
+with open(filepath, "r") as f:
+    content = f.read()
+
+# Since we use contentEntity, we don't need manual insert or delete into messages_fts. Room handles it with triggers.
+content = """package com.hybrid.messaging.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -26,9 +33,6 @@ interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUsers(users: List<UserEntity>)
-
-    @Query("UPDATE users SET status = :status WHERE id = :userId")
-    suspend fun updateUserStatus(userId: String, status: com.hybrid.messaging.core.model.UserStatus)
 }
 
 @Dao
@@ -47,9 +51,6 @@ interface ChatRoomDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChatRooms(chatRooms: List<ChatRoomEntity>)
-
-    @Query("DELETE FROM chat_rooms WHERE id = :roomId")
-    suspend fun deleteChatRoom(roomId: String)
 }
 
 @Dao
@@ -68,9 +69,6 @@ interface ServerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCategories(categories: List<ChannelCategoryEntity>)
-
-    @Query("DELETE FROM servers WHERE id = :serverId")
-    suspend fun deleteServer(serverId: String)
 }
 
 @Dao
@@ -90,8 +88,13 @@ interface MessageDao {
     @Query("DELETE FROM messages WHERE id = :messageId")
     suspend fun deleteMessage(messageId: String)
 
-    @Query("SELECT * FROM messages WHERE encryptionStatus = 'PENDING' ORDER BY timestamp ASC")
-    fun getPendingMessages(): Flow<List<MessageEntity>>
+    @Query(\"\"\"
+        SELECT messages.* FROM messages
+        JOIN messages_fts ON messages.id = messages_fts.rowid
+        WHERE messages_fts MATCH :query
+        ORDER BY messages.timestamp DESC
+    \"\"\")
+    suspend fun searchMessages(query: String): List<MessageEntity>
 }
 
 @Dao
@@ -105,3 +108,6 @@ interface ReactionDao {
     @Query("DELETE FROM reactions WHERE messageId = :messageId AND emoji = :emoji AND userId = :userId")
     suspend fun removeReaction(messageId: String, emoji: String, userId: String)
 }
+"""
+with open(filepath, "w") as f:
+    f.write(content)

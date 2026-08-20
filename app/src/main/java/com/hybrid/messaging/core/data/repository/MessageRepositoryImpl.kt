@@ -17,16 +17,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
-import com.hybrid.messaging.core.work.MessageSyncWorker
 
 class MessageRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val messageDao: MessageDao,
     private val reactionDao: ReactionDao,
     private val webSocketManager: WebSocketManager
@@ -47,7 +39,6 @@ class MessageRepositoryImpl @Inject constructor(
                     audioDurationMs = entity.audioDurationMs,
                     timestamp = entity.timestamp,
                     encryptionStatus = entity.encryptionStatus,
-                    syncState = entity.syncState,
                     reactions = emptyList(),
                     replyToMessageId = entity.replyToMessageId
                 )
@@ -77,13 +68,12 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            syncState = com.hybrid.messaging.core.model.SyncState.PENDING,
             replyToMessageId = replyToId
         )
 
         messageDao.insertMessage(entity)
 
-        val result = runCatching {
+        runCatching {
             webSocketManager.sendFrame(
                 SocketFrame.MessagePayload(
                     id = messageId,
@@ -98,18 +88,6 @@ class MessageRepositoryImpl @Inject constructor(
             )
         }
 
-        if (result.isSuccess) {
-            messageDao.updateMessageSyncState(messageId, com.hybrid.messaging.core.model.SyncState.SENT)
-        } else {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            val workRequest = OneTimeWorkRequestBuilder<MessageSyncWorker>()
-                .setConstraints(constraints)
-                .build()
-            WorkManager.getInstance(context).enqueue(workRequest)
-        }
-
         val domainMessage = Message(
             id = messageId,
             roomId = roomId,
@@ -119,7 +97,6 @@ class MessageRepositoryImpl @Inject constructor(
             messageType = MessageType.TEXT,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            syncState = com.hybrid.messaging.core.model.SyncState.PENDING,
             replyToMessageId = replyToId
         )
 
@@ -148,7 +125,6 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = durationMs,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            syncState = com.hybrid.messaging.core.model.SyncState.PENDING,
             replyToMessageId = null
         )
 
@@ -165,8 +141,7 @@ class MessageRepositoryImpl @Inject constructor(
                 mediaUrl = audioFilePath,
                 audioDurationMs = durationMs,
                 timestamp = timestamp,
-                encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-                syncState = com.hybrid.messaging.core.model.SyncState.PENDING
+                encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3
             )
         )
     }
@@ -193,7 +168,6 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            syncState = com.hybrid.messaging.core.model.SyncState.PENDING,
             replyToMessageId = null
         )
 
@@ -208,8 +182,7 @@ class MessageRepositoryImpl @Inject constructor(
                 content = "Attachment",
                 messageType = type,
                 mediaUrl = mediaUrl,
-                timestamp = timestamp,
-                syncState = com.hybrid.messaging.core.model.SyncState.PENDING
+                timestamp = timestamp
             )
         )
     }

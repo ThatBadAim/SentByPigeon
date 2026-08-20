@@ -5,7 +5,6 @@ import com.hybrid.messaging.core.model.ChatRoomType
 import com.hybrid.messaging.core.model.EncryptionStatus
 import com.hybrid.messaging.core.model.MessageType
 import com.hybrid.messaging.core.model.UserStatus
-import com.hybrid.messaging.core.model.SyncState
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -35,12 +34,6 @@ class Converters {
 
     @TypeConverter
     fun toEncryptionStatus(value: String): EncryptionStatus = runCatching { EncryptionStatus.valueOf(value) }.getOrDefault(EncryptionStatus.ENCRYPTED_SIGNAL_V3)
-
-    @TypeConverter
-    fun fromSyncState(status: SyncState): String = status.name
-
-    @TypeConverter
-    fun toSyncState(value: String): SyncState = runCatching { SyncState.valueOf(value) }.getOrDefault(SyncState.PENDING)
 
     @TypeConverter
     fun fromListString(list: List<String>): String = json.encodeToString(list)
