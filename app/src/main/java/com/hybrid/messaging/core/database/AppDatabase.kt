@@ -2,6 +2,7 @@ package com.hybrid.messaging.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.AutoMigration
 import androidx.room.TypeConverters
 import com.hybrid.messaging.core.database.dao.ChatRoomDao
 import com.hybrid.messaging.core.database.dao.MessageDao
@@ -24,8 +25,11 @@ import com.hybrid.messaging.core.database.entity.UserEntity
         MessageEntity::class,
         ReactionEntity::class
     ],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2)
+    ],
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

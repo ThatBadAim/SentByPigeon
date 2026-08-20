@@ -11,6 +11,7 @@ import com.hybrid.messaging.core.database.entity.MessageEntity
 import com.hybrid.messaging.core.database.entity.ReactionEntity
 import com.hybrid.messaging.core.database.entity.ServerEntity
 import com.hybrid.messaging.core.database.entity.UserEntity
+import com.hybrid.messaging.core.model.SyncState
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -92,6 +93,12 @@ interface MessageDao {
 
     @Query("SELECT * FROM messages WHERE encryptionStatus = 'PENDING' ORDER BY timestamp ASC")
     fun getPendingMessages(): Flow<List<MessageEntity>>
+
+    @Query("SELECT * FROM messages WHERE syncState = 'PENDING' ORDER BY timestamp ASC")
+    suspend fun getUnsyncedMessages(): List<MessageEntity>
+
+    @Query("UPDATE messages SET syncState = :syncState WHERE id = :messageId")
+    suspend fun updateMessageSyncState(messageId: String, syncState: SyncState)
 }
 
 @Dao
