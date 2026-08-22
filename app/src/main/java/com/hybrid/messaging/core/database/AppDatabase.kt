@@ -12,7 +12,6 @@ import com.hybrid.messaging.core.database.entity.ChannelCategoryEntity
 import com.hybrid.messaging.core.database.entity.ChatRoomEntity
 import com.hybrid.messaging.core.database.entity.MessageEntity
 import com.hybrid.messaging.core.database.entity.ReactionEntity
-import androidx.room.AutoMigration
 import com.hybrid.messaging.core.database.entity.ServerEntity
 import com.hybrid.messaging.core.database.entity.UserEntity
 
@@ -25,11 +24,8 @@ import com.hybrid.messaging.core.database.entity.UserEntity
         MessageEntity::class,
         ReactionEntity::class
     ],
-    version = 2,
-    exportSchema = true,
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2)
-    ]
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
