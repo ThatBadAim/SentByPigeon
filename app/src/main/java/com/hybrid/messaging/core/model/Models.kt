@@ -101,10 +101,13 @@ data class Message(
     val audioDurationMs: Long? = null,
     val timestamp: Long = System.currentTimeMillis(),
     val encryptionStatus: EncryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+    val syncState: SyncState = SyncState.SENT,
     val reactions: List<Reaction> = emptyList(),
     val readReceipts: List<ReadReceipt> = emptyList(),
     val replyToMessageId: String? = null
 )
+
+enum class SyncState { PENDING, SENT, DELIVERED, READ, FAILED }
 
 enum class MessageType {
     TEXT, IMAGE, VOICE_NOTE, CALL_LOG, SYSTEM
