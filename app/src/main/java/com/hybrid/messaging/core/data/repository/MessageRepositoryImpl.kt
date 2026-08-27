@@ -10,6 +10,7 @@ import com.hybrid.messaging.core.model.EncryptionStatus
 import com.hybrid.messaging.core.model.Message
 import com.hybrid.messaging.core.model.MessageType
 import com.hybrid.messaging.core.model.Reaction
+import com.hybrid.messaging.core.model.SyncState
 import com.hybrid.messaging.core.network.websocket.SocketFrame
 import com.hybrid.messaging.core.network.websocket.WebSocketManager
 import kotlinx.coroutines.flow.Flow
@@ -17,12 +18,35 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import androidx.work.WorkManager
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.Constraints
+import com.hybrid.messaging.core.network.worker.MessageSyncWorker
 
 class MessageRepositoryImpl @Inject constructor(
     private val messageDao: MessageDao,
     private val reactionDao: ReactionDao,
-    private val webSocketManager: WebSocketManager
+    private val webSocketManager: WebSocketManager,
+    @ApplicationContext private val context: Context
 ) : MessageRepository {
+
+    private fun enqueueSyncWorker() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<MessageSyncWorker>()
+            .setConstraints(constraints)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "message_sync",
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            request
+        )
+    }
 
     override fun getMessagesForRoom(roomId: String): Flow<List<Message>> {
         return messageDao.getMessagesForRoom(roomId).map { entities ->
@@ -39,6 +63,7 @@ class MessageRepositoryImpl @Inject constructor(
                     audioDurationMs = entity.audioDurationMs,
                     timestamp = entity.timestamp,
                     encryptionStatus = entity.encryptionStatus,
+                    syncState = entity.syncState,
                     reactions = emptyList(),
                     replyToMessageId = entity.replyToMessageId
                 )
@@ -68,25 +93,13 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+            syncState = SyncState.PENDING,
             replyToMessageId = replyToId
         )
 
         messageDao.insertMessage(entity)
 
-        runCatching {
-            webSocketManager.sendFrame(
-                SocketFrame.MessagePayload(
-                    id = messageId,
-                    roomId = roomId,
-                    senderId = currentUserId,
-                    senderName = currentUserName,
-                    content = text,
-                    messageType = MessageType.TEXT.name,
-                    timestamp = timestamp,
-                    encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3.name
-                )
-            )
-        }
+        enqueueSyncWorker()
 
         val domainMessage = Message(
             id = messageId,
@@ -125,10 +138,13 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = durationMs,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+            syncState = SyncState.PENDING,
             replyToMessageId = null
         )
 
         messageDao.insertMessage(entity)
+
+        enqueueSyncWorker()
 
         return Resource.Success(
             Message(
@@ -168,10 +184,13 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+            syncState = SyncState.PENDING,
             replyToMessageId = null
         )
 
         messageDao.insertMessage(entity)
+
+        enqueueSyncWorker()
 
         return Resource.Success(
             Message(
