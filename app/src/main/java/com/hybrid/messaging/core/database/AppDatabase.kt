@@ -25,7 +25,7 @@ import com.hybrid.messaging.core.database.entity.UserEntity
         ReactionEntity::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
