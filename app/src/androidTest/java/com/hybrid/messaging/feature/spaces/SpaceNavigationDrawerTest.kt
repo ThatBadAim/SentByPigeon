@@ -7,6 +7,9 @@ import com.hybrid.messaging.core.model.Server
 import com.hybrid.messaging.feature.spaces.ui.SpaceNavigationDrawer
 import org.junit.Rule
 import org.junit.Test
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.assertIsDisplayed
 
 class SpaceNavigationDrawerTest {
 
@@ -30,6 +33,6 @@ class SpaceNavigationDrawerTest {
         }
 
         // Assert nodes (servers are usually represented by abbreviated letters of their name, or their name if visible)
-        composeTestRule.onNodeWithText("TS").assertIsDisplayed() // Server 1 'Test Server 1' abbreviation
+        composeTestRule.onAllNodesWithText("TS").onFirst().assertIsDisplayed() // Server 1 'Test Server 1' abbreviation
     }
 }

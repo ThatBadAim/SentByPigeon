@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "ed1caaa197c9bcbb1dd9250d95cec817",
+    "identityHash": "a94fdba39f6578f6ef360d9edb51a062",
     "entities": [
       {
         "tableName": "users",
@@ -172,7 +172,7 @@
       },
       {
         "tableName": "chat_rooms",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `avatarUrl` TEXT, `serverId` TEXT, `categoryId` TEXT, `isEncrypted` INTEGER NOT NULL, `encryptionKeyId` TEXT, `memberIds` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `avatarUrl` TEXT, `serverId` TEXT, `categoryId` TEXT, `isEncrypted` INTEGER NOT NULL, `encryptionKeyId` TEXT, `memberIds` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`serverId`) REFERENCES `servers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -261,7 +261,19 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_chat_rooms_categoryId` ON `${TABLE_NAME}` (`categoryId`)"
           }
         ],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "servers",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "serverId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       },
       {
         "tableName": "messages",
@@ -462,7 +474,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed1caaa197c9bcbb1dd9250d95cec817')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a94fdba39f6578f6ef360d9edb51a062')"
     ]
   }
 }

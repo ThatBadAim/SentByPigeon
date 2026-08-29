@@ -53,7 +53,15 @@ data class ChannelCategoryEntity(
 
 @Entity(
     tableName = "chat_rooms",
-    indices = [Index("serverId"), Index("categoryId")]
+    indices = [Index("serverId"), Index("categoryId")],
+    foreignKeys = [
+        ForeignKey(
+            entity = ServerEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["serverId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
 )
 data class ChatRoomEntity(
     @PrimaryKey val id: String,
