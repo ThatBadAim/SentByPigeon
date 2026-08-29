@@ -80,6 +80,14 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    // WorkManager & Hilt Work
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.androidx.hilt.compiler)
+
+    // Biometrics
+    implementation(libs.androidx.biometric)
+
     // Room & SQLCipher Encryption
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

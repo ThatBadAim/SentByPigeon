@@ -1,5 +1,11 @@
 package com.hybrid.messaging.core.data.repository
 
+import android.content.Context
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.hybrid.messaging.core.database.dao.MessageDao
 import com.hybrid.messaging.core.database.dao.ReactionDao
 import com.hybrid.messaging.core.database.entity.MessageEntity
@@ -10,8 +16,10 @@ import com.hybrid.messaging.core.model.EncryptionStatus
 import com.hybrid.messaging.core.model.Message
 import com.hybrid.messaging.core.model.MessageType
 import com.hybrid.messaging.core.model.Reaction
+import com.hybrid.messaging.core.model.SyncState
 import com.hybrid.messaging.core.network.websocket.SocketFrame
 import com.hybrid.messaging.core.network.websocket.WebSocketManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -19,6 +27,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 class MessageRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val messageDao: MessageDao,
     private val reactionDao: ReactionDao,
     private val webSocketManager: WebSocketManager
@@ -40,10 +49,27 @@ class MessageRepositoryImpl @Inject constructor(
                     timestamp = entity.timestamp,
                     encryptionStatus = entity.encryptionStatus,
                     reactions = emptyList(),
-                    replyToMessageId = entity.replyToMessageId
+                    replyToMessageId = entity.replyToMessageId,
+                    syncState = entity.syncState
                 )
             }
         }
+    }
+
+    private fun scheduleMessageSyncWorker() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val workRequest = OneTimeWorkRequestBuilder<MessageSyncWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "MessageSyncWorker",
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            workRequest
+        )
     }
 
     override suspend fun sendTextMessage(
@@ -68,12 +94,13 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            replyToMessageId = replyToId
+            replyToMessageId = replyToId,
+            syncState = SyncState.PENDING
         )
 
         messageDao.insertMessage(entity)
 
-        runCatching {
+        val result = runCatching {
             webSocketManager.sendFrame(
                 SocketFrame.MessagePayload(
                     id = messageId,
@@ -88,6 +115,17 @@ class MessageRepositoryImpl @Inject constructor(
             )
         }
 
+        var finalSyncState = SyncState.PENDING
+
+        if (result.isSuccess) {
+            finalSyncState = SyncState.SENT
+            messageDao.updateMessageSyncState(messageId, SyncState.SENT)
+        } else {
+            finalSyncState = SyncState.FAILED
+            messageDao.updateMessageSyncState(messageId, SyncState.FAILED)
+            scheduleMessageSyncWorker()
+        }
+
         val domainMessage = Message(
             id = messageId,
             roomId = roomId,
@@ -97,7 +135,8 @@ class MessageRepositoryImpl @Inject constructor(
             messageType = MessageType.TEXT,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            replyToMessageId = replyToId
+            replyToMessageId = replyToId,
+            syncState = finalSyncState
         )
 
         return Resource.Success(domainMessage)
@@ -125,10 +164,13 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = durationMs,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            replyToMessageId = null
+            replyToMessageId = null,
+            syncState = SyncState.PENDING
         )
 
         messageDao.insertMessage(entity)
+        messageDao.updateMessageSyncState(messageId, SyncState.FAILED)
+        scheduleMessageSyncWorker()
 
         return Resource.Success(
             Message(
@@ -141,7 +183,8 @@ class MessageRepositoryImpl @Inject constructor(
                 mediaUrl = audioFilePath,
                 audioDurationMs = durationMs,
                 timestamp = timestamp,
-                encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3
+                encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
+                syncState = SyncState.FAILED
             )
         )
     }
@@ -168,10 +211,13 @@ class MessageRepositoryImpl @Inject constructor(
             audioDurationMs = null,
             timestamp = timestamp,
             encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-            replyToMessageId = null
+            replyToMessageId = null,
+            syncState = SyncState.PENDING
         )
 
         messageDao.insertMessage(entity)
+        messageDao.updateMessageSyncState(messageId, SyncState.FAILED)
+        scheduleMessageSyncWorker()
 
         return Resource.Success(
             Message(
@@ -182,7 +228,8 @@ class MessageRepositoryImpl @Inject constructor(
                 content = "Attachment",
                 messageType = type,
                 mediaUrl = mediaUrl,
-                timestamp = timestamp
+                timestamp = timestamp,
+                syncState = SyncState.FAILED
             )
         )
     }

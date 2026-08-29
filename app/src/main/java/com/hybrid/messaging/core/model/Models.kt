@@ -103,7 +103,8 @@ data class Message(
     val encryptionStatus: EncryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
     val reactions: List<Reaction> = emptyList(),
     val readReceipts: List<ReadReceipt> = emptyList(),
-    val replyToMessageId: String? = null
+    val replyToMessageId: String? = null,
+    val syncState: SyncState = SyncState.SENT
 )
 
 enum class MessageType {
@@ -112,6 +113,10 @@ enum class MessageType {
 
 enum class EncryptionStatus {
     UNENCRYPTED, PENDING, ENCRYPTED_SIGNAL_V3, VERIFIED
+}
+
+enum class SyncState {
+    PENDING, SENT, DELIVERED, READ, FAILED
 }
 
 /**
