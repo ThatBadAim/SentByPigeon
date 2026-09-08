@@ -93,8 +93,12 @@ class AppDatabaseTest {
         assertEquals(UserStatus.AWAY, updatedUser?.status)
     }
 
+
     @Test
     fun getDirectAndGroupChats_QueriesOnlyNullServerId() = runTest {
+        val server = ServerEntity(id = "s1", name = "Test Server", iconUrl = null, ownerId = "u1")
+        serverDao.insertServer(server)
+
         val dmRoom = ChatRoomEntity(
             id = "dm1", type = ChatRoomType.DIRECT_MESSAGE, name = "DM",
             description = null, avatarUrl = null, serverId = null, categoryId = null,
