@@ -124,12 +124,12 @@ class AppDatabaseTest {
         val pendingMessage = MessageEntity(
             id = "m1", roomId = "ch1", senderId = "u1", senderName = "User 1", senderAvatarUrl = null,
             content = "Pending", messageType = MessageType.TEXT, mediaUrl = null, audioDurationMs = null,
-            timestamp = 1000L, encryptionStatus = EncryptionStatus.PENDING, replyToMessageId = null
+            timestamp = 1000L, encryptionStatus = EncryptionStatus.PENDING, replyToMessageId = null, syncState = com.hybrid.messaging.core.model.SyncState.SENT
         )
         val encryptedMessage = MessageEntity(
             id = "m2", roomId = "ch1", senderId = "u1", senderName = "User 1", senderAvatarUrl = null,
             content = "Encrypted", messageType = MessageType.TEXT, mediaUrl = null, audioDurationMs = null,
-            timestamp = 1001L, encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3, replyToMessageId = null
+            timestamp = 1001L, encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3, replyToMessageId = null, syncState = com.hybrid.messaging.core.model.SyncState.SENT
         )
 
         messageDao.insertMessages(listOf(pendingMessage, encryptedMessage))
@@ -148,8 +148,8 @@ class AppDatabaseTest {
         )
         chatRoomDao.insertChatRoom(channel)
 
-        val msg1 = MessageEntity("m1", "ch1", "u1", "U", null, "1", MessageType.TEXT, null, null, 1000L, EncryptionStatus.UNENCRYPTED, null)
-        val msg2 = MessageEntity("m2", "ch1", "u1", "U", null, "2", MessageType.TEXT, null, null, 2000L, EncryptionStatus.UNENCRYPTED, null)
+        val msg1 = MessageEntity("m1", "ch1", "u1", "U", null, "1", MessageType.TEXT, null, null, 1000L, EncryptionStatus.UNENCRYPTED, null, com.hybrid.messaging.core.model.SyncState.SENT)
+        val msg2 = MessageEntity("m2", "ch1", "u1", "U", null, "2", MessageType.TEXT, null, null, 2000L, EncryptionStatus.UNENCRYPTED, null, com.hybrid.messaging.core.model.SyncState.SENT)
         messageDao.insertMessages(listOf(msg1, msg2))
 
         val messages = messageDao.getMessagesForRoom("ch1").first()
@@ -217,7 +217,7 @@ class AppDatabaseTest {
             audioDurationMs = null,
             timestamp = 1000L,
             encryptionStatus = EncryptionStatus.UNENCRYPTED,
-            replyToMessageId = null
+            replyToMessageId = null, syncState = com.hybrid.messaging.core.model.SyncState.SENT
         )
         messageDao.insertMessage(message)
 
