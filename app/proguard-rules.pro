@@ -19,3 +19,8 @@
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt
 -keep,allowoptimization class kotlinx.serialization.** { *; }
+
+# Suppress slf4j missing class warnings in R8 for release builds
+-dontwarn org.slf4j.impl.StaticLoggerBinder
+-dontwarn org.slf4j.impl.StaticMDCBinder
+-dontwarn org.slf4j.impl.StaticMarkerBinder
