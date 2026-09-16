@@ -169,8 +169,32 @@ class MessageRepositoryImpl @Inject constructor(
         )
 
         messageDao.insertMessage(entity)
-        messageDao.updateMessageSyncState(messageId, SyncState.FAILED)
-        scheduleMessageSyncWorker()
+
+        val result = runCatching {
+            webSocketManager.sendFrame(
+                SocketFrame.MessagePayload(
+                    id = messageId,
+                    roomId = roomId,
+                    senderId = currentUserId,
+                    senderName = currentUserName,
+                    content = entity.content,
+                    messageType = MessageType.VOICE_NOTE.name,
+                    mediaUrl = audioFilePath,
+                    audioDurationMs = durationMs,
+                    timestamp = timestamp,
+                    encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3.name
+                )
+            )
+        }
+
+        val finalSyncState = if (result.isSuccess) {
+            messageDao.updateMessageSyncState(messageId, SyncState.SENT)
+            SyncState.SENT
+        } else {
+            messageDao.updateMessageSyncState(messageId, SyncState.FAILED)
+            scheduleMessageSyncWorker()
+            SyncState.FAILED
+        }
 
         return Resource.Success(
             Message(
@@ -184,7 +208,7 @@ class MessageRepositoryImpl @Inject constructor(
                 audioDurationMs = durationMs,
                 timestamp = timestamp,
                 encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3,
-                syncState = SyncState.FAILED
+                syncState = finalSyncState
             )
         )
     }
@@ -216,8 +240,31 @@ class MessageRepositoryImpl @Inject constructor(
         )
 
         messageDao.insertMessage(entity)
-        messageDao.updateMessageSyncState(messageId, SyncState.FAILED)
-        scheduleMessageSyncWorker()
+
+        val result = runCatching {
+            webSocketManager.sendFrame(
+                SocketFrame.MessagePayload(
+                    id = messageId,
+                    roomId = roomId,
+                    senderId = currentUserId,
+                    senderName = currentUserName,
+                    content = entity.content,
+                    messageType = type.name,
+                    mediaUrl = mediaUrl,
+                    timestamp = timestamp,
+                    encryptionStatus = EncryptionStatus.ENCRYPTED_SIGNAL_V3.name
+                )
+            )
+        }
+
+        val finalSyncState = if (result.isSuccess) {
+            messageDao.updateMessageSyncState(messageId, SyncState.SENT)
+            SyncState.SENT
+        } else {
+            messageDao.updateMessageSyncState(messageId, SyncState.FAILED)
+            scheduleMessageSyncWorker()
+            SyncState.FAILED
+        }
 
         return Resource.Success(
             Message(
@@ -229,7 +276,7 @@ class MessageRepositoryImpl @Inject constructor(
                 messageType = type,
                 mediaUrl = mediaUrl,
                 timestamp = timestamp,
-                syncState = SyncState.FAILED
+                syncState = finalSyncState
             )
         )
     }
