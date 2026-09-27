@@ -101,7 +101,7 @@ data class MessageEntity(
     val timestamp: Long,
     val encryptionStatus: EncryptionStatus,
     val replyToMessageId: String?,
-    @ColumnInfo(defaultValue = "'SENT'") val syncState: SyncState
+    @ColumnInfo(defaultValue = "'PENDING'") val syncState: SyncState
 )
 
 @Entity(
