@@ -115,7 +115,7 @@ class MessageRepositoryImpl @Inject constructor(
             )
         }
 
-        var finalSyncState = SyncState.PENDING
+        val finalSyncState: SyncState
 
         if (result.isSuccess) {
             finalSyncState = SyncState.SENT
