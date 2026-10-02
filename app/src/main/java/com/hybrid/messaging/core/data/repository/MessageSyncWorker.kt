@@ -41,6 +41,8 @@ class MessageSyncWorker @AssistedInject constructor(
                             senderName = entity.senderName,
                             content = entity.content,
                             messageType = entity.messageType.name,
+                            mediaUrl = entity.mediaUrl,
+                            audioDurationMs = entity.audioDurationMs,
                             timestamp = entity.timestamp,
                             encryptionStatus = entity.encryptionStatus.name
                         )
