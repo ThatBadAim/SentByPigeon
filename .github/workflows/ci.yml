@@ -9,6 +9,8 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     defaults:
       run:
@@ -26,10 +28,10 @@ jobs:
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: echo 'No gradlew, using gradle'
 
       - name: Run Unit Tests
-        run: ./gradlew test --stacktrace
+        run: gradle test --stacktrace
 
       - name: Enable KVM
         run: |
@@ -46,5 +48,4 @@ jobs:
           profile: pixel_6
           working-directory: .
           script: |
-            chmod +x gradlew
-            ./gradlew connectedCheck --stacktrace
+            gradle connectedCheck --stacktrace
